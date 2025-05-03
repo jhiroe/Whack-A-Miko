@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Whack-a-Friend!</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #f0e6d6;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    .game {
+      display: grid;
+      grid-template-columns: repeat(3, 150px);
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .hole {
+      width: 150px;
+      height: 150px;
+      background-color: #4b3f2f;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .face {
+      width: 100%;
+      position: absolute;
+      bottom: -100%;
+      transition: bottom 0.3s ease;
+    }
+    .face.up {
+      bottom: 0;
+    }
+    #score {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Whack-a-Friend!</h1>
+  <div id="score">Score: 0</div>
+  <div class="game" id="game"></div>
+
+  <script>
+    const game = document.getElementById('game');
+    const scoreBoard = document.getElementById('score');
+    const holes = [];
+    const totalHoles = 6;
+    let score = 0;
+    let lastHole;
+    let timeUp = false;
+
+    for (let i = 0; i < totalHoles; i++) {
+      const hole = document.createElement('div');
+      hole.classList.add('hole');
+
+      const face = document.createElement('img');
+      face.src = 'face.png';
+      face.classList.add('face');
+      hole.appendChild(face);
+
+      game.appendChild(hole);
+      holes.push(hole);
+
+      hole.addEventListener('click', () => {
+        if (face.classList.contains('up')) {
+          score++;
+          scoreBoard.textContent = `Score: ${score}`;
+          face.classList.remove('up');
+        }
+      });
+    }
+
+    function randomTime(min, max) {
+      return Math.round(Math.random() * (max - min) + min);
+    }
+
+    function randomHole(holes) {
+      const idx = Math.floor(Math.random() * holes.length);
+      const hole = holes[idx];
+      if (hole === lastHole) return randomHole(holes);
+      lastHole = hole;
+      return hole;
+    }
+
+    function peep() {
+      const time = randomTime(500, 1000);
+      const hole = randomHole(holes);
+      const face = hole.querySelector('.face');
+      face.classList.add('up');
+
+      setTimeout(() => {
+        face.classList.remove('up');
+        if (!timeUp) peep();
+      }, time);
+    }
+
+    function startGame() {
+      score = 0;
+      scoreBoard.textContent = 'Score: 0';
+      timeUp = false;
+      peep();
+      setTimeout(() => (timeUp = true), 15000);
+    }
+
+    window.onload = startGame;
+  </script>
+</body>
+</html>
